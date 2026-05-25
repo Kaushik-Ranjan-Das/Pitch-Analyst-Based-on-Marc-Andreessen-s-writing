@@ -1,0 +1,16 @@
+{
+  "name": "voice-pitch-agent",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Live voice pitch agent — Aparna interviews founders, fills a pitch packet, and grounds every reply in Marc Andreessen's published corpus.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --port 4173",
+    "build:index": "node --env-file=.env scripts/build-index.mjs"
+  },
+  "devDependencies": {
+    "vite": "^7.0.0"
+  }
+}

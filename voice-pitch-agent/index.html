@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aparna — pitch session</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Serif:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/styles.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-row">
+      <div class="header-brand">
+        <svg class="logomark" viewBox="0 0 36 36" aria-hidden="true">
+          <circle cx="18" cy="18" r="16" fill="none" stroke="currentColor" stroke-width="1.5" />
+          <path d="M 9 19 Q 13 13 18 18 Q 23 23 27 17" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+          <circle cx="18" cy="18" r="2.2" fill="var(--live)" />
+        </svg>
+        <div class="header-titles">
+          <h1 class="app-title">Pitch Analyst — Based on Marc Andreessen's writing</h1>
+          <div class="header-subtitle">
+            <span class="subtitle-model">claude-sonnet-4-6 + voyage-3.5-lite RAG</span>
+          </div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <select class="voice-picker" data-voice-picker title="Pick a TTS voice — try Alex or Daniel for louder output"></select>
+        <button class="btn btn-secondary btn-test" data-test-speaker title="Speaks a test sentence to verify TTS is audible">Test speaker</button>
+        <button class="btn btn-secondary btn-test" data-test-mic title="Opens mic, shows audio level + transcribes 6 seconds of speech">Test mic</button>
+        <button class="btn btn-secondary btn-test" data-diagnose title="Run TTS diagnostic and show results on the page">Diagnose</button>
+        <span class="status-pill" data-status-pill>
+          <span class="status-dot" data-status-dot></span>
+          <span data-status-text>idle</span>
+        </span>
+      </div>
+    </div>
+
+    <div class="kpi-band" data-kpi-band>
+      <span class="kpi"><span class="kpi-label">Session</span><span class="kpi-value" data-kpi-duration>00:00</span></span>
+      <span class="kpi"><span class="kpi-label">Captured</span><span class="kpi-value" data-kpi-filled>0 / 0</span></span>
+      <span class="kpi"><span class="kpi-label">Completion</span><span class="kpi-value" data-kpi-pct>0%</span></span>
+      <span class="kpi"><span class="kpi-label">Priority</span><span class="kpi-value" data-kpi-priority>Medium</span></span>
+      <span class="kpi"><span class="kpi-label">Aparna</span><span class="kpi-value" data-kpi-agent>idle</span></span>
+      <span class="kpi"><span class="kpi-label">Active section</span><span class="kpi-value" data-kpi-section>—</span></span>
+    </div>
+  </header>
+
+  <main class="dashboard">
+    <!-- TOP ROW: Live session (left) + Pitch packet (right) -->
+    <section class="panel panel-call">
+      <div class="panel-head">
+        <div>
+          <div class="panel-eyebrow">LIVE SESSION</div>
+          <h2 class="panel-title">Voice and transcript</h2>
+        </div>
+        <span class="pill pill-live" data-streaming-pill hidden>
+          <span class="pill-dot"></span> STREAMING
+        </span>
+      </div>
+
+      <div class="voice-hero">
+        <svg class="voice-ring" viewBox="0 0 240 240" aria-hidden="true">
+          <defs>
+            <linearGradient id="completionGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#14B8A6" />
+              <stop offset="100%" stop-color="#10B981" />
+            </linearGradient>
+          </defs>
+          <circle cx="120" cy="120" r="106" fill="none" stroke="#E5E7EB" stroke-width="8" />
+          <circle
+            data-ring
+            cx="120" cy="120" r="106" fill="none"
+            stroke="url(#completionGrad)"
+            stroke-width="8"
+            stroke-linecap="round"
+            stroke-dasharray="666"
+            stroke-dashoffset="666"
+            transform="rotate(-90 120 120)"
+          />
+          <circle cx="120" cy="120" r="78" fill="#FFFFFF" stroke="#F1F5F9" stroke-width="1" />
+          <g class="mic-icon" transform="translate(120 120)">
+            <rect x="-12" y="-22" width="24" height="32" rx="12" fill="#0F172A" />
+            <path d="M -22 4 Q -22 26 0 26 Q 22 26 22 4" stroke="#0F172A" stroke-width="2.5" fill="none" />
+            <line x1="0" y1="26" x2="0" y2="34" stroke="#0F172A" stroke-width="2.5" />
+          </g>
+        </svg>
+        <div class="voice-readout">
+          <div class="readout-pct" data-ring-pct>0%</div>
+          <div class="readout-sub"><span data-ring-sub>0 of 0</span> fields captured</div>
+          <div class="readout-state" data-readout-state>Ready to begin pitch session</div>
+        </div>
+      </div>
+
+      <ul class="section-progress" data-section-dots></ul>
+
+      <div class="call-actions">
+        <button class="btn btn-primary" data-start>New pitch session</button>
+        <button class="btn btn-secondary" data-stop>Stop</button>
+        <button class="btn btn-secondary" data-reset>Reset</button>
+      </div>
+
+    </section>
+
+    <!-- RIGHT COLUMN: Tabbed (Live transcript / Marc says / Share) + always-on Citations fixture below -->
+    <section class="panel panel-right-tabs">
+      <div class="tab-strip" role="tablist">
+        <button class="tab-btn is-active" role="tab" data-tab="transcript" aria-selected="true">
+          <span class="tab-eyebrow">Live transcript</span>
+          <span class="tab-meta" data-tab-meta="transcript">Between me &amp; Aparna</span>
+        </button>
+        <button class="tab-btn" role="tab" data-tab="marc" aria-selected="false">
+          <span class="tab-eyebrow">Marc says</span>
+          <span class="tab-meta" data-tab-meta="marc">Next probe</span>
+        </button>
+        <button class="tab-btn" role="tab" data-tab="share" aria-selected="false">
+          <span class="tab-eyebrow">Ready to share</span>
+          <span class="tab-meta" data-tab-meta="share" data-pct-badge>0%</span>
+        </button>
+      </div>
+
+      <!-- Live transcript tab (default) -->
+      <div class="tab-content is-active" data-tab-content="transcript">
+        <div class="tab-content-head">
+          <div>
+            <div class="panel-eyebrow">LIVE TRANSCRIPT BETWEEN ME &amp; APARNA</div>
+            <h2 class="panel-title">Conversation <span class="panel-title-active" data-packet-title></span></h2>
+          </div>
+          <span class="streaming-tag" data-streaming-tag hidden>Streaming</span>
+        </div>
+        <div class="transcript" data-transcript>
+          <div class="transcript-empty">
+            Click <strong>New pitch session</strong> to start. Aparna will introduce herself and begin the pitch intake — grounded in Marc Andreessen's actual writing.
+          </div>
+        </div>
+        <form class="text-input-row" data-text-form>
+          <input type="text" class="text-input" placeholder="Type a response (or speak)..." data-text-input>
+          <button type="submit" class="btn btn-send">Send</button>
+        </form>
+      </div>
+
+      <!-- Marc says tab -->
+      <div class="tab-content" data-tab-content="marc">
+        <div class="tab-content-head">
+          <div>
+            <div class="panel-eyebrow">WHAT MARC WOULD PRESS ON</div>
+            <h2 class="panel-title">Next probe</h2>
+          </div>
+          <span class="live-badge"><span class="pill-dot pill-dot-green"></span> Live</span>
+        </div>
+        <div class="priority-pill" data-priority>Medium — Waiting for founder to start the pitch</div>
+        <div class="guidance-section">
+          <div class="guidance-eyebrow">Aparna's next question</div>
+          <div class="guidance-quote" data-next-question>
+            Aparna will open with introductions and ask you to walk her through what you're building.
+          </div>
+        </div>
+        <div class="guidance-section">
+          <div class="guidance-eyebrow">Press on next</div>
+          <div class="press-prompt" data-press-prompt>
+            Pitch packet is empty — pick a dimension to start.
+          </div>
+        </div>
+        <div class="guidance-section">
+          <div class="guidance-eyebrow">Articles cited (<span data-cited-count>0</span>)</div>
+          <ul class="cited-articles" data-cited-articles>
+            <li class="cited-empty">Sources Aparna pulls from will appear here. Click any to open the original.</li>
+          </ul>
+        </div>
+        <div class="guidance-section">
+          <div class="guidance-eyebrow">Missing fields</div>
+          <div class="blocking-pills" data-blocking></div>
+        </div>
+        <details class="audit-trail">
+          <summary>Audit trail</summary>
+          <ol class="audit-log" data-audit></ol>
+        </details>
+      </div>
+
+      <!-- Share tab -->
+      <div class="tab-content" data-tab-content="share">
+        <div class="tab-content-head">
+          <div>
+            <div class="panel-eyebrow">READY TO SHARE</div>
+            <h2 class="panel-title">Pitch packet</h2>
+          </div>
+        </div>
+        <dl class="file-rows">
+          <div class="file-row"><dt>Summary</dt><dd data-summary>—</dd></div>
+          <div class="file-row"><dt>Priority</dt><dd data-file-priority>Medium</dd></div>
+          <div class="file-row"><dt>Missing</dt><dd data-required>—</dd></div>
+          <div class="file-row"><dt>Attachments</dt><dd>Not captured yet</dd></div>
+          <div class="file-row"><dt>Next action</dt><dd data-next-action>Start pitch session</dd></div>
+        </dl>
+        <button class="btn btn-file" data-file-btn disabled>Share packet</button>
+      </div>
+
+      <!-- Always-on Citations fixture (pinned to bottom of right panel) -->
+      <aside class="citations-fixture">
+        <header class="citations-fixture-head">
+          <span class="panel-eyebrow">Marc citations <span class="citations-fixture-count" data-citations-count>0</span></span>
+          <span class="live-badge"><span class="pill-dot pill-dot-green"></span> Live</span>
+        </header>
+        <div class="sources-panel" data-sources-panel>
+          <div class="sources-empty">Aparna's citations will accumulate here as she pulls from Marc's writing.</div>
+        </div>
+      </aside>
+
+      <!-- Form sections (kept rendered for state subscription; hidden from view, surfaced via section progress on the left panel) -->
+      <div class="form-sections" data-form hidden></div>
+    </section>
+  </main>
+
+  <!-- LIVE CITATION TICKER (real-time toasts in bottom-right) -->
+  <div class="live-citation-ticker" data-citation-ticker></div>
+
+  <!-- TTS DIAGNOSTIC PANEL -->
+  <div class="diag-panel" data-diag-panel hidden>
+    <div class="diag-card">
+      <div class="diag-head">
+        <h3>TTS diagnostic</h3>
+        <button class="citation-close" data-diag-close aria-label="Close">×</button>
+      </div>
+      <pre class="diag-body" data-diag-body>Running…</pre>
+      <p class="diag-hint">Listen carefully — a test phrase plays now. The report below updates over 2 seconds.</p>
+    </div>
+  </div>
+
+  <!-- MIC TEST PANEL -->
+  <div class="diag-panel" data-mic-panel hidden>
+    <div class="diag-card">
+      <div class="diag-head">
+        <h3>Microphone test</h3>
+        <button class="citation-close" data-mic-close aria-label="Close">×</button>
+      </div>
+      <div class="mic-meter">
+        <div class="mic-meter-fill" data-mic-meter></div>
+      </div>
+      <div class="mic-status" data-mic-status>Click <strong>Start test</strong> below, then speak for a few seconds.</div>
+      <pre class="diag-body" data-mic-body>Idle — click Start test to begin.</pre>
+      <div class="diag-actions">
+        <button class="btn btn-primary" data-mic-start>Start test</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CITATION POPOVER -->
+  <div class="citation-popover" data-citation-popover hidden>
+    <div class="citation-popover-head">
+      <span class="citation-popover-eyebrow">Why she's saying this</span>
+      <button class="citation-close" data-citation-close aria-label="Close">×</button>
+    </div>
+    <div class="citation-popover-body" data-citation-body></div>
+  </div>
+
+  <!-- ESCALATE-TO-PARTNER OVERLAY -->
+  <div class="handoff-overlay" data-handoff hidden>
+    <div class="handoff-card">
+      <div class="handoff-eyebrow">PARTNER ESCALATION</div>
+      <h3 class="handoff-title" data-handoff-title>Connecting you to a partner…</h3>
+      <p class="handoff-reason" data-handoff-reason></p>
+      <div class="handoff-progress">
+        <div class="handoff-bar"><div class="handoff-fill" data-handoff-fill></div></div>
+        <span class="handoff-stage" data-handoff-stage>Notifying a partner…</span>
+      </div>
+      <div class="handoff-meta" data-handoff-meta>
+        Pitch packet and source citations are passed to the partner. They'll see everything Aparna captured.
+      </div>
+      <button class="btn btn-secondary" data-handoff-close hidden>Close</button>
+    </div>
+  </div>
+
+  <!-- API KEY MODAL (only if backend lacks key) -->
+  <div class="setup-overlay" data-setup hidden>
+    <div class="setup-card">
+      <h3>One-time setup</h3>
+      <p>The dev server doesn't have <code>ANTHROPIC_API_KEY</code> in <code>.env</code>. Add it (plus <code>VOYAGE_API_KEY</code> for retrieval) and restart <code>bun run dev</code>.</p>
+      <pre><code>cp .env.example .env
+# edit .env to add ANTHROPIC_API_KEY=sk-ant-...
+# and          VOYAGE_API_KEY=pa-...
+bun run build:index   # one-time, builds data/index.json
+bun run dev</code></pre>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+# OS / editors
+.DS_Store
+*.swp
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Local AI tooling (Claude Code, gstack, etc.)
+.claude/
+.gstack/
+
+# Node
+node_modules/
+dist/
+.vite/
+
+# Env files (also covered in voice-pitch-agent/.gitignore)
+.env
+.env.local
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Built embedding index (regenerable via npm run build:index)
+voice-pitch-agent/data/index.json
+
+# Scraped Marc corpus — public re-distribution requires attribution.
+# Run `cd marc-agent && python3 scrape_all.py --source all` to populate locally.
+marc-agent/data/blog/
+marc-agent/data/essays/
+marc-agent/data/pmarca/
+marc-agent/data/podcasts/
+marc-agent/data/youtube/
